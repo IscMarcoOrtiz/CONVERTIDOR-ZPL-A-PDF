@@ -3,45 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZPL a PDF Converter </title>
+    <title>ZPL a PDF Converter - Edición Visual</title>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f8;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            margin: 0;
-            padding: 40px 20px;
-            box-sizing: border-box;
+            background-color: #f4f6f8; color: #333; display: flex;
+            justify-content: center; align-items: flex-start;
+            min-height: 100vh; margin: 0; padding: 40px 20px; box-sizing: border-box;
         }
         .main-wrapper {
-            display: flex;
-            gap: 20px;
-            width: 100%;
-            max-width: 900px;
-            flex-wrap: wrap;
+            display: flex; gap: 20px; width: 100%; max-width: 950px; flex-wrap: wrap;
         }
         .container, .log-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            box-sizing: border-box;
+            background-color: white; padding: 30px; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); box-sizing: border-box;
         }
-        .container {
-            flex: 1;
-            min-width: 300px;
-        }
-        .log-container {
-            width: 350px;
-            display: flex;
-            flex-direction: column;
-            max-height: 80vh;
-        }
+        .container { flex: 1; min-width: 350px; }
+        .log-container { width: 350px; display: flex; flex-direction: column; max-height: 80vh; }
         h2, h3 { margin-top: 0; color: #2c3e50; }
         .form-group { margin: 20px 0; text-align: left; }
         label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
@@ -58,7 +37,6 @@
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
         #status { margin-top: 15px; font-size: 14px; color: #555; word-wrap: break-word; min-height: 20px; }
         
-        /* Estilos del Panel de Selección */
         #selectionPanel {
             display: none; margin: 20px 0; padding: 15px;
             background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px;
@@ -67,33 +45,37 @@
         .action-btn { padding: 6px 12px; font-size: 12px; background-color: #6c757d; width: auto; }
         .action-btn:hover { background-color: #5a6268; }
         .checkbox-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px; max-height: 200px; overflow-y: auto; padding: 10px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px; max-height: 250px; overflow-y: auto; padding: 10px;
             background: white; border: 1px solid #dee2e6; border-radius: 4px;
         }
-        .checkbox-item { display: flex; align-items: center; font-size: 13px; gap: 5px; cursor: pointer; }
+        .checkbox-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            font-size: 13px; padding: 6px 8px; background: #fff; 
+            border: 1px solid #e0e0e0; border-radius: 4px;
+        }
+        .checkbox-label-wrapper { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .edit-btn {
+            background: none; border: none; cursor: pointer; font-size: 16px; 
+            padding: 2px; width: auto; color: #007bff; transition: transform 0.2s;
+        }
+        .edit-btn:hover { transform: scale(1.2); background: none; }
 
-        /* Estilos del Log */
         .log-list {
             list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1;
             border: 1px solid #eee; border-radius: 4px; background: #fafafa;
         }
-        .log-item { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; transition: background-color 0.3s; }
-        .log-item:last-child { border-bottom: none; }
+        .log-item { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
         .log-time { color: #888; font-size: 11px; display: block; margin-bottom: 4px; }
         .log-details { display: flex; justify-content: space-between; align-items: center; }
         .log-name { font-weight: bold; color: #007bff; }
         .log-count { background: #e9ecef; padding: 2px 6px; border-radius: 10px; font-size: 11px; }
         .active-log { border-left: 4px solid #f39c12; background-color: #fffdf5; }
-        .active-log .log-time { color: #d68200; font-weight: bold; }
-        .active-log .log-count { background-color: #f39c12; color: white; }
         .clear-btn { background-color: #dc3545; margin-top: 15px; font-size: 14px; padding: 8px; }
-        .clear-btn:hover { background-color: #c82333; }
 
-        /* Estilos del Modal */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;
+            background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center;
             z-index: 1000; opacity: 0; transition: opacity 0.3s ease;
         }
         .modal-overlay.active { display: flex; opacity: 1; }
@@ -103,11 +85,40 @@
             transform: translateY(-20px); transition: transform 0.3s ease;
         }
         .modal-overlay.active .modal-content { transform: translateY(0); }
-        .modal-content h3 { margin-top: 0; color: #dc3545; }
-        .modal-actions { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
-        .modal-btn-cancel, .modal-btn-confirm { width: auto; }
+        .modal-content h3 { margin-top: 0; color: #333; }
+        
+        /* NUEVOS ESTILOS DEL EDITOR VISUAL */
+        #editModal .modal-content { max-width: 650px; text-align: left; }
+        .tabs { display: flex; border-bottom: 1px solid #ccc; margin-bottom: 15px; }
+        .tab-btn {
+            background: none; border: none; padding: 10px 20px; cursor: pointer;
+            font-size: 14px; color: #666; width: auto; font-weight: bold;
+        }
+        .tab-btn.active { color: #007bff; border-bottom: 3px solid #007bff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        #visualEditor {
+            max-height: 350px; overflow-y: auto; padding-right: 10px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+        .visual-field {
+            background: #f8f9fa; padding: 10px; border: 1px solid #e9ecef; border-radius: 4px;
+        }
+        .visual-field label { font-size: 11px; color: #6c757d; margin-bottom: 4px; }
+        .visual-field input { padding: 6px; font-size: 13px; }
+
+        .modal-textarea {
+            width: 100%; height: 300px; font-family: 'Courier New', Courier, monospace;
+            font-size: 13px; padding: 12px; box-sizing: border-box;
+            border: 1px solid #ccc; border-radius: 4px; resize: vertical;
+            background-color: #f8f9fa; color: #333; white-space: pre; overflow-wrap: normal;
+        }
+        
+        .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px; }
+        .modal-btn-cancel, .modal-btn-confirm { width: auto; padding: 10px 20px; font-size: 14px; }
         .modal-btn-cancel { background-color: #6c757d; }
-        .modal-btn-confirm { background-color: #dc3545; }
+        .modal-btn-confirm { background-color: #28a745; }
     </style>
 </head>
 <body>
@@ -122,7 +133,7 @@
         </div>
 
         <div id="selectionPanel">
-            <label>2. Selecciona las etiquetas a convertir:</label>
+            <label>2. Selecciona y edita las etiquetas:</label>
             <div class="selection-actions">
                 <button id="selectAllBtn" class="action-btn">Marcar Todas</button>
                 <button id="deselectAllBtn" class="action-btn">Desmarcar Todas</button>
@@ -147,12 +158,38 @@
 </div>
 
 <div id="customModal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>¿Borrar Historial?</h3>
-        <p>Esta acción eliminará todos los registros. No se puede deshacer.</p>
-        <div class="modal-actions">
+    <div class="modal-content" style="text-align: center;">
+        <h3 style="color: #dc3545;">¿Borrar Historial?</h3>
+        <div class="modal-actions" style="justify-content: center;">
             <button id="cancelModalBtn" class="modal-btn-cancel">Cancelar</button>
-            <button id="confirmModalBtn" class="modal-btn-confirm">Sí, borrar</button>
+            <button id="confirmModalBtn" class="modal-btn-confirm" style="background-color: #dc3545;">Sí, borrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE EDICIÓN CON PESTAÑAS -->
+<div id="editModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Editar <span id="editModalTitle"></span></h3>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('visual')">Edición Sencilla</button>
+            <button class="tab-btn" onclick="switchTab('code')">Código Avanzado</button>
+        </div>
+
+        <div id="visualTab" class="tab-content active">
+            <p style="font-size: 12px; color: #666; margin-top: 0;">Modifica únicamente los valores de texto. (Ideal para tu equipo de trabajo)</p>
+            <div id="visualEditor"></div>
+        </div>
+
+        <div id="codeTab" class="tab-content">
+            <p style="font-size: 12px; color: #dc3545; margin-top: 0;">Precaución: Modificar comandos directamente puede desconfigurar la etiqueta.</p>
+            <textarea id="zplEditor" class="modal-textarea" spellcheck="false"></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button id="cancelEditBtn" class="modal-btn-cancel">Cancelar</button>
+            <button id="saveEditBtn" class="modal-btn-confirm">Guardar Cambios</button>
         </div>
     </div>
 </div>
@@ -160,8 +197,11 @@
 <script>
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
     let currentParsedLabels = []; 
+    let currentlyEditingIndex = null;
+    let currentZplSegments = []; // Almacenará los fragmentos del código ZPL
+    let currentActiveTab = 'visual';
 
-    // --- LÓGICA DEL LOG Y MODAL ---
+    // --- LÓGICA DEL LOG Y MODAL DE HISTORIAL ---
     const logListElement = document.getElementById('logList');
     function loadLogs() {
         const logs = JSON.parse(localStorage.getItem('zplLogs')) || [];
@@ -172,160 +212,189 @@
         }
         logs.forEach(log => renderLogItem(log));
     }
-
     function addLog(originalFile, pdfName, labelCount) {
         const logs = JSON.parse(localStorage.getItem('zplLogs')) || [];
         logs.unshift({ time: new Date().toLocaleString(), original: originalFile, pdf: pdfName, count: labelCount });
         if(logs.length > 50) logs.pop(); 
-        localStorage.setItem('zplLogs', JSON.stringify(logs));
-        loadLogs();
+        localStorage.setItem('zplLogs', JSON.stringify(logs)); loadLogs();
     }
-
     function renderLogItem(log) {
-        const li = document.createElement('li');
-        li.className = 'log-item';
-        li.innerHTML = `
-            <span class="log-time">✅ Finalizado: ${log.time}</span>
-            <div class="log-details">
-                <div><span style="font-size: 11px; color: #666;">De: ${log.original}</span><br><span class="log-name">${log.pdf}</span></div>
-                <span class="log-count">${log.count} etiq.</span>
-            </div>`;
+        const li = document.createElement('li'); li.className = 'log-item';
+        li.innerHTML = `<span class="log-time">✅ Finalizado: ${log.time}</span>
+            <div class="log-details"><div><span style="font-size: 11px; color: #666;">De: ${log.original}</span><br><span class="log-name">${log.pdf}</span></div><span class="log-count">${log.count} etiq.</span></div>`;
         logListElement.appendChild(li);
     }
-
     const modal = document.getElementById('customModal');
-    document.getElementById('clearLogBtn').addEventListener('click', () => {
-        modal.style.display = 'flex';
-        setTimeout(() => modal.classList.add('active'), 10);
-    });
-    document.getElementById('cancelModalBtn').addEventListener('click', () => {
-        modal.classList.remove('active');
-        setTimeout(() => modal.style.display = 'none', 300);
-    });
-    document.getElementById('confirmModalBtn').addEventListener('click', () => {
-        localStorage.removeItem('zplLogs');
-        loadLogs();
-        modal.classList.remove('active');
-        setTimeout(() => modal.style.display = 'none', 300);
-    });
+    document.getElementById('clearLogBtn').addEventListener('click', () => { modal.style.display = 'flex'; setTimeout(() => modal.classList.add('active'), 10); });
+    document.getElementById('cancelModalBtn').addEventListener('click', () => { modal.classList.remove('active'); setTimeout(() => modal.style.display = 'none', 300); });
+    document.getElementById('confirmModalBtn').addEventListener('click', () => { localStorage.removeItem('zplLogs'); loadLogs(); modal.classList.remove('active'); setTimeout(() => modal.style.display = 'none', 300); });
     loadLogs();
 
-    // --- LECTURA DE ARCHIVO CON AGRUPACIÓN INTELIGENTE ---
+    // --- PESTAÑAS DEL MODAL ---
+    window.switchTab = function(tabName) {
+        currentActiveTab = tabName;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        if(tabName === 'visual') {
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.getElementById('visualTab').classList.add('active');
+        } else {
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            document.getElementById('codeTab').classList.add('active');
+            // Si pasan a avanzado, armamos el código actual de las cajitas para que esté al día
+            if(currentZplSegments.length > 0) updateSegmentsFromInputs();
+            zplEditor.value = rebuildZplFromSegments();
+        }
+    };
+
+    // --- MODAL DE EDICIÓN ---
+    const editModal = document.getElementById('editModal');
+    const zplEditor = document.getElementById('zplEditor');
+    const visualEditor = document.getElementById('visualEditor');
+
+    window.openEditModal = function(index) {
+        currentlyEditingIndex = index;
+        document.getElementById('editModalTitle').textContent = `Etiqueta ${index + 1}`;
+        const zpl = currentParsedLabels[index];
+        zplEditor.value = zpl;
+        
+        // Magia de división: Separa el texto de los comandos usando los marcadores ^FD y ^FS
+        currentZplSegments = zpl.split(/\^FD([\s\S]*?)\^FS/i);
+        visualEditor.innerHTML = '';
+
+        if (currentZplSegments.length > 1) {
+            let fieldNum = 1;
+            // Los índices impares (1, 3, 5...) contienen la información real a editar
+            for (let i = 1; i < currentZplSegments.length; i += 2) {
+                const value = currentZplSegments[i].trim();
+                visualEditor.innerHTML += `
+                    <div class="visual-field">
+                        <label>Campo de Texto ${fieldNum}</label>
+                        <input type="text" class="visual-input" data-index="${i}" value="${value.replace(/"/g, '&quot;')}">
+                    </div>
+                `;
+                fieldNum++;
+            }
+        } else {
+            visualEditor.innerHTML = '<p style="grid-column: 1 / -1; color: #888;">No se detectaron campos de texto compatibles para edición sencilla en esta etiqueta.</p>';
+        }
+
+        switchTab('visual'); // Siempre abre en la vista amigable
+        editModal.style.display = 'flex';
+        setTimeout(() => editModal.classList.add('active'), 10);
+    };
+
+    function updateSegmentsFromInputs() {
+        document.querySelectorAll('.visual-input').forEach(input => {
+            const idx = input.getAttribute('data-index');
+            currentZplSegments[idx] = input.value;
+        });
+    }
+
+    function rebuildZplFromSegments() {
+        if(currentZplSegments.length === 1) return currentZplSegments[0];
+        let newZpl = currentZplSegments[0];
+        for (let i = 1; i < currentZplSegments.length; i += 2) {
+            newZpl += "^FD" + currentZplSegments[i] + "^FS" + currentZplSegments[i+1];
+        }
+        return newZpl;
+    }
+
+    document.getElementById('cancelEditBtn').addEventListener('click', () => {
+        editModal.classList.remove('active'); setTimeout(() => editModal.style.display = 'none', 300);
+        currentlyEditingIndex = null;
+    });
+
+    document.getElementById('saveEditBtn').addEventListener('click', () => {
+        if (currentlyEditingIndex !== null) {
+            let finalZpl = "";
+            if(currentActiveTab === 'visual' && currentZplSegments.length > 1) {
+                updateSegmentsFromInputs();
+                finalZpl = rebuildZplFromSegments();
+            } else {
+                finalZpl = zplEditor.value;
+            }
+            
+            currentParsedLabels[currentlyEditingIndex] = finalZpl;
+            const btn = document.getElementById(`edit-btn-${currentlyEditingIndex}`);
+            if(btn) { btn.style.color = "#28a745"; btn.title = "Código editado"; }
+        }
+        editModal.classList.remove('active'); setTimeout(() => editModal.style.display = 'none', 300);
+        currentlyEditingIndex = null;
+    });
+
+    // --- LECTURA DE ARCHIVO ---
     const fileInput = document.getElementById('zplFile');
     const convertBtn = document.getElementById('convertBtn');
-    const selectionPanel = document.getElementById('selectionPanel');
     const checkboxGrid = document.getElementById('checkboxGrid');
     const statusDiv = document.getElementById('status');
 
     fileInput.addEventListener('change', (e) => {
-        currentParsedLabels = [];
-        checkboxGrid.innerHTML = '';
-        selectionPanel.style.display = 'none';
-        convertBtn.disabled = true;
-        statusDiv.textContent = "";
+        currentParsedLabels = []; checkboxGrid.innerHTML = '';
+        document.getElementById('selectionPanel').style.display = 'none';
+        convertBtn.disabled = true; statusDiv.textContent = "";
 
         if (e.target.files.length === 0) return;
-
-        const file = e.target.files[0];
         const reader = new FileReader();
 
         reader.onload = function(event) {
-            let zplCode = event.target.result;
-            zplCode = zplCode.replace(/\0/g, '');
-            zplCode = zplCode.replace(/^\uFEFF/, '').trim();
-
+            let zplCode = event.target.result.replace(/\0/g, '').replace(/^\uFEFF/, '').trim();
             const rawBlocks = zplCode.split(/(?=\^XA)/i).filter(label => label.toUpperCase().includes('^XZ'));
             let pendingSetup = "";
 
-            // Agrupar bloques de configuración con bloques de impresión
             rawBlocks.forEach(block => {
-                const upperBlock = block.toUpperCase();
-                // ^FO (Field Origin), ^FT (Field Typeset), ^FD (Field Data) son comandos reales de impresión
-                if (upperBlock.includes('^FO') || upperBlock.includes('^FT') || upperBlock.includes('^FD')) {
-                    currentParsedLabels.push(pendingSetup + block);
-                    pendingSetup = ""; // Limpiamos la configuración acumulada
-                } else {
-                    pendingSetup += block; // Acumulamos el bloque de configuración
-                }
+                const u = block.toUpperCase();
+                if (u.includes('^FO') || u.includes('^FT') || u.includes('^FD')) {
+                    currentParsedLabels.push(pendingSetup + block); pendingSetup = ""; 
+                } else { pendingSetup += block; }
             });
 
-            // Por si el archivo termina con configuración (muy raro)
-            if (pendingSetup !== "" && currentParsedLabels.length > 0) {
-                currentParsedLabels[currentParsedLabels.length - 1] += pendingSetup;
-            } else if (pendingSetup !== "" && currentParsedLabels.length === 0) {
-                currentParsedLabels.push(pendingSetup);
-            }
+            if (pendingSetup !== "" && currentParsedLabels.length > 0) currentParsedLabels[currentParsedLabels.length - 1] += pendingSetup;
+            else if (pendingSetup !== "" && currentParsedLabels.length === 0) currentParsedLabels.push(pendingSetup);
 
             if (currentParsedLabels.length > 0) {
                 currentParsedLabels.forEach((_, index) => {
-                    const labelDiv = document.createElement('label');
-                    labelDiv.className = 'checkbox-item';
-                    labelDiv.innerHTML = `<input type="checkbox" class="label-checkbox" value="${index}" checked> Etiqueta ${index + 1}`;
+                    const labelDiv = document.createElement('div'); labelDiv.className = 'checkbox-item';
+                    labelDiv.innerHTML = `
+                        <div class="checkbox-label-wrapper">
+                            <input type="checkbox" class="label-checkbox" value="${index}" checked>
+                            <span>Etiqueta ${index + 1}</span>
+                        </div>
+                        <button id="edit-btn-${index}" class="edit-btn" onclick="openEditModal(${index})" title="Editar Datos">✏️</button>`;
                     checkboxGrid.appendChild(labelDiv);
                 });
-                
-                selectionPanel.style.display = 'block';
+                document.getElementById('selectionPanel').style.display = 'block';
                 convertBtn.disabled = false;
-                statusDiv.textContent = `Se detectaron ${currentParsedLabels.length} etiquetas físicas listas para filtrar.`;
-                statusDiv.style.color = "#007bff";
-            } else {
-                statusDiv.textContent = "Error: No se detectaron comandos ^XA válidos para imprimir.";
-                statusDiv.style.color = "red";
+                statusDiv.textContent = `Se detectaron ${currentParsedLabels.length} etiquetas físicas.`; statusDiv.style.color = "#007bff";
             }
         };
-        reader.readAsText(file);
+        reader.readAsText(e.target.files[0]);
     });
 
-    document.getElementById('selectAllBtn').addEventListener('click', () => {
-        document.querySelectorAll('.label-checkbox').forEach(cb => cb.checked = true);
-    });
-    document.getElementById('deselectAllBtn').addEventListener('click', () => {
-        document.querySelectorAll('.label-checkbox').forEach(cb => cb.checked = false);
-    });
+    document.getElementById('selectAllBtn').addEventListener('click', () => document.querySelectorAll('.label-checkbox').forEach(cb => cb.checked = true));
+    document.getElementById('deselectAllBtn').addEventListener('click', () => document.querySelectorAll('.label-checkbox').forEach(cb => cb.checked = false));
 
-    // --- CONVERSIÓN ---
+    // --- CONVERSIÓN A PDF ---
     convertBtn.addEventListener('click', async () => {
         const selectedCheckboxes = Array.from(document.querySelectorAll('.label-checkbox:checked'));
-        
-        if (selectedCheckboxes.length === 0) {
-            statusDiv.textContent = "Debes seleccionar al menos una etiqueta para generar el PDF.";
-            statusDiv.style.color = "red";
-            return;
-        }
+        if (selectedCheckboxes.length === 0) { statusDiv.textContent = "Selecciona al menos una etiqueta."; statusDiv.style.color = "red"; return; }
 
         const labelsToConvert = selectedCheckboxes.map(cb => currentParsedLabels[parseInt(cb.value)]);
-        
-        const nameInput = document.getElementById('pdfName');
         const file = fileInput.files[0];
-        let finalPdfName = nameInput.value.trim();
-        if (finalPdfName === "") {
-            finalPdfName = file.name.replace(/\.[^/.]+$/, "") + "_convertido";
-        }
+        let finalPdfName = document.getElementById('pdfName').value.trim();
+        if (!finalPdfName) finalPdfName = file.name.replace(/\.[^/.]+$/, "") + "_convertido";
         if (!finalPdfName.toLowerCase().endsWith('.pdf')) finalPdfName += '.pdf';
 
-        convertBtn.disabled = true;
-        statusDiv.style.color = "black";
+        convertBtn.disabled = true; statusDiv.style.color = "black";
         
-        const chunkSize = 10;
         const chunks = [];
-        for (let i = 0; i < labelsToConvert.length; i += chunkSize) {
-            chunks.push(labelsToConvert.slice(i, i + chunkSize).join('\n'));
-        }
+        for (let i = 0; i < labelsToConvert.length; i += 10) chunks.push(labelsToConvert.slice(i, i + 10).join('\n'));
 
-        if (logListElement.innerHTML.includes("No hay conversiones")) logListElement.innerHTML = '';
-
-        const activeLogItem = document.createElement('li');
-        activeLogItem.className = 'log-item active-log';
-        activeLogItem.innerHTML = `
-            <span class="log-time">⏳ Procesando...</span>
-            <div class="log-details">
-                <div>
-                    <span style="font-size: 11px; color: #666;">Convirtiendo: ${file.name}</span><br>
-                    <span class="log-name" id="active-log-text">Iniciando conexión...</span>
-                </div>
-                <span class="log-count" id="active-log-badge">0 / ${chunks.length} lotes</span>
-            </div>
-        `;
+        const activeLogItem = document.createElement('li'); activeLogItem.className = 'log-item active-log';
+        activeLogItem.innerHTML = `<span class="log-time">⏳ Procesando...</span>
+            <div class="log-details"><div><span style="font-size: 11px; color: #666;">Convirtiendo: ${file.name}</span><br><span class="log-name" id="active-log-text">Iniciando...</span></div>
+            <span class="log-count" id="active-log-badge">0 / ${chunks.length} lotes</span></div>`;
         logListElement.insertBefore(activeLogItem, logListElement.firstChild);
 
         try {
@@ -333,61 +402,32 @@
             const url = 'https://api.labelary.com/v1/printers/8dpmm/labels/4x6/';
 
             for (let i = 0; i < chunks.length; i++) {
-                const statusText = `Procesando lote ${i + 1} de ${chunks.length}...`;
-                statusDiv.textContent = statusText;
-                document.getElementById('active-log-text').textContent = statusText;
+                statusDiv.textContent = `Procesando lote ${i + 1} de ${chunks.length}...`;
+                document.getElementById('active-log-text').textContent = statusDiv.textContent;
                 document.getElementById('active-log-badge').textContent = `${i + 1} / ${chunks.length} lotes`;
                 
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Accept': 'application/pdf', 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: chunks[i]
-                });
+                const response = await fetch(url, { method: 'POST', headers: { 'Accept': 'application/pdf', 'Content-Type': 'application/x-www-form-urlencoded' }, body: chunks[i] });
+                if (!response.ok) throw new Error(`Error en lote ${i + 1}`);
 
-                if (!response.ok) throw new Error(`Error en lote ${i + 1} (Status ${response.status})`);
-
-                const pdfBytes = await response.arrayBuffer();
-                const donorPdf = await PDFLib.PDFDocument.load(pdfBytes);
-                const copiedPages = await mergedPdf.copyPages(donorPdf, donorPdf.getPageIndices());
-                copiedPages.forEach((page) => mergedPdf.addPage(page));
-
-                if (i < chunks.length - 1) {
-                    const pauseText = `Pausando para enfriar conexión...`;
-                    statusDiv.textContent = pauseText;
-                    document.getElementById('active-log-text').textContent = pauseText;
-                    await sleep(2000); 
-                }
+                const donorPdf = await PDFLib.PDFDocument.load(await response.arrayBuffer());
+                (await mergedPdf.copyPages(donorPdf, donorPdf.getPageIndices())).forEach(page => mergedPdf.addPage(page));
+                if (i < chunks.length - 1) await sleep(2000); 
             }
 
-            document.getElementById('active-log-text').textContent = "Ensamblando PDF final...";
-            statusDiv.textContent = "Guardando archivo PDF...";
-            
-            const mergedPdfBytes = await mergedPdf.save();
-            const realLabelCount = mergedPdf.getPageCount();
-
-            const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+            statusDiv.textContent = "Guardando PDF...";
+            const blob = new Blob([await mergedPdf.save()], { type: 'application/pdf' });
             const urlBlob = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = urlBlob; a.download = finalPdfName;
-            document.body.appendChild(a); a.click(); a.remove();
-            window.URL.revokeObjectURL(urlBlob);
+            const a = document.createElement('a'); a.href = urlBlob; a.download = finalPdfName;
+            document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(urlBlob);
 
-            statusDiv.textContent = `¡Proceso completado! Se generaron ${realLabelCount} etiquetas.`;
-            statusDiv.style.color = "green";
-
-            activeLogItem.remove();
-            addLog(file.name, finalPdfName, realLabelCount);
-            nameInput.value = "";
+            statusDiv.textContent = `¡Completado! Generaste ${mergedPdf.getPageCount()} etiquetas.`; statusDiv.style.color = "green";
+            activeLogItem.remove(); addLog(file.name, finalPdfName, mergedPdf.getPageCount());
+            document.getElementById('pdfName').value = "";
 
         } catch (error) {
-            console.error(error);
-            statusDiv.textContent = error.message;
-            statusDiv.style.color = "red";
-            document.getElementById('active-log-text').textContent = "Error en conversión";
-            document.getElementById('active-log-text').style.color = "red";
-        } finally {
-            convertBtn.disabled = false;
-        }
+            statusDiv.textContent = error.message; statusDiv.style.color = "red";
+            document.getElementById('active-log-text').textContent = "Error"; document.getElementById('active-log-text').style.color = "red";
+        } finally { convertBtn.disabled = false; }
     });
 </script>
 
